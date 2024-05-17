@@ -1,0 +1,275 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics</title>
+    <!-- Add any other common styles or scripts here -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #e6e6e6;
+        }
+        
+
+        .header {
+            width: 100%;
+            height: 50px;
+            background-color: rgb(99, 99, 99);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* padding: 20px; */
+        }
+
+        .header-logo {
+            /* float: left; */
+            width: 170px;
+            height: 50px;
+            margin-left: 40px;
+        }
+
+        .main{
+            margin-left: 50px;
+            margin-right: 50px;
+            margin-top: 20px;
+        }
+        .stock-info {
+            display: flex;
+            flex-flow: column;
+        }
+
+        .info-div01 {
+            display: flex;
+            align-items: start;
+            width: 100%;
+            height: auto;
+            
+        }
+
+        .info-div01 .internal-div {
+            display: flex;
+            flex-flow: row;
+            gap: 30px;
+        }
+
+        .stock-logo {
+            height: 70px;
+            border-radius: 60px;
+        }
+
+        .stock-name {
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: start;
+            gap: 2px;
+        }
+
+        .stock-name .div1 h2 {
+            text-transform: uppercase;
+        }
+
+        .stock-name .div2 {
+            display: flex;
+            flex-flow: row;
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .flag {
+            /* width: 60px;
+            height: 30px; */
+            border-radius: 50px;
+        }
+
+        .info-div02 {
+            display: flex;
+            flex-flow: row;
+            justify-content: space-between;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgb(151, 151, 151);
+            /* margin-left: 60px; */
+        }
+
+        
+
+        .info-div02 .div2 {
+            display: flex;
+            flex-flow: row;
+            gap: 20px;
+        }
+
+        .content {
+            display: flex;
+            flex-flow: row;
+            width: 100%;
+            height: auto;
+            margin-top: 40px;
+            gap: 20px;
+        }
+
+        /* .content .div1 {
+
+        }
+
+        .content .div2 {
+
+        } */
+
+        .historicalPlot {
+            border: 1px solid rgb(151, 151, 151);
+            margin-bottom: 20px;
+
+        }
+
+        .sentimentPlot {
+            border: 1px solid rgb(151, 151, 151);
+            margin-bottom: 20px;
+        }
+
+        .content .div2 h2 {
+            margin-bottom: 20px;
+        }
+
+        
+
+    </style>
+</head>
+<body>
+    <div class="header" id="header">
+        <img class="header-logo" src="{% static 'img/logo-s.png' %}" alt="">
+    </div>
+    <div class="main">
+        <div class="stock-info">
+            <div class="info-div01">
+                <div class="internal-div">
+                    <img class="stock-logo" src="{% static 'logos/' %}{{stock.symbol}}.svg" alt="">
+                    <div class="stock-name">
+                        <div class="div1">
+                            <h2>{{stock.name}}</h2>
+                        </div>
+                        <div class="div2">
+                            <h4>{{stock.symbol}}</h4>
+                            <img class="flag" src="{% static 'img/US.svg' %}" alt="">
+                            <h4>NASDAQ</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-div02">
+                <div class="div1">
+                    <h2 style="color: blue;">{{stock.last_price}} <span>USD</span></h2>
+                    <h5>AT CLOSE</h5>
+                </div>
+                <div class="div2">
+                    <div>
+                        <h3>{{stock.market_cap}}</h3>
+                        <h5>MARKET CAP</h5>
+                    </div>
+    
+                    <div>
+                        <h3>{{stock.pe_ratio}}</h3>
+                        <h5>P/E</h5>
+                    </div>
+                </div>
+
+                
+
+            </div>
+        </div>
+    
+        <div class="content" id="content">
+            <!-- Placeholder for Sentiment vs Price Plot -->
+            <div class="div1">
+
+                <!-- Placeholder for Historical Stock Data Plot -->
+                <div id="historicalPlotSpinner" style="display:none;">
+                    Loading Historical Stock Data Plot...
+                </div>
+                <div class="historicalPlot" id="historicalPlot"></div>
+
+                <div id="sentimentPlotSpinner" style="display:none;">
+                    Loading Sentiment vs Price Plot...
+                </div>
+                <div class="sentimentPlot" id="sentimentPlot"></div>
+        
+
+            </div>
+             
+            <div class="div2" id="newsContainer" style="float: right; width: 30%; padding-left: 20px;">
+                <h2>Latest News</h2>
+                <div id="newsHeadlines"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <!-- Your footer content -->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var stockSymbol = "{{ stock.symbol }}";
+            loadPlots(stockSymbol);
+            // loadLatestNews(stockSymbol);
+        });
+        
+        function loadPlots(stockSymbol) {
+            $('#sentimentPlotSpinner').show();
+            $('#historicalPlotSpinner').show();
+        
+            $.ajax({
+                url: `/get-stock-plots/${stockSymbol}/`,
+                type: 'GET',
+                success: function(response) {
+                    $('#historicalPlot').html('<img src="' + response.historical_plot_url + '" width="100%" height="auto">');
+                    $('#sentimentPlot').html('<img src="' + response.sentiment_plot_url + '" width="100%" height="auto">');
+                    var newsHtml = '<ul style="gap: 1ppx;">';
+                    response.latest_news.forEach(function(news) {
+                        // newsHtml += `<p>${news.title}</p>`;
+                        newsHtml += `<li style="margin-bottom: 10px;"><a href="${news.url}" target="_blank">${news.title}</a></li>`;
+                    });
+                    newsHtml += '</ul>';
+                    $('#newsHeadlines').html(newsHtml);
+                },
+                error: function(error) {
+                    console.log(error);
+                },
+                complete: function() {
+                    $('#sentimentPlotSpinner').hide();
+                    $('#historicalPlotSpinner').hide();
+                }
+            });
+
+        }
+        // function loadLatestNews(stockSymbol) {
+        //     $.ajax({
+        //         url: `/get-latest-news/${stockSymbol}/`,
+        //         type: 'GET',
+        //         success: function(response) {
+        //             var newsHtml = '';
+        //             response.latest_news.forEach(function(news) {
+        //                 newsHtml += `<p>${news.title}</p>`;
+        //             });
+        //             $('#newsHeadlines').html(newsHtml);
+        //         },
+        //         error: function(error) {
+        //             console.log(error);
+        //         }
+        //     });
+        // }
+        </script>
+</body>
+</html>

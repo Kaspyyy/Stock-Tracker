@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOCK TRACKER</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-flow: column;
+            height: 100vh;
+            background-color: #e6e6e6;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo-img {
+            width: 330px;
+            height: 220px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-box input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        }
+
+        .search-box button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 0 3px 3px 0;
+        }
+
+        .com-list {
+            margin-top: 20px;
+            display: flex;
+            width: 100%;
+            height: auto;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .company{
+            width: 100%;
+            height: auto;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            row-gap: 50px;
+            /* padding: 20px; */
+        }
+
+        /* .company-link {
+            text-decoration: none;
+            color: black;
+            width: 200px;
+            height: auto;
+            
+        } */
+
+        .company-card{
+            text-decoration: none;
+            color: black;
+            padding: 10px;
+            width: 200px;
+            height: auto;
+            display: flex;
+            flex-flow: row;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 20px;
+            gap: 20px;
+        }
+
+        .company-card h3,
+        .company-card h4 {
+            margin: 4px 0;
+        }
+
+
+        .card-div01 {
+            width: 30%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-logo {
+            border-radius: 50px;
+        }
+
+        .card-div02 {
+            width: 70%;
+        }
+
+        .stock-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 130px;
+        }
+
+        .symbol {
+            font-size: 15px;
+        }
+
+        .price {
+            color: blue;
+            font-size: 15px;
+
+        }
+
+
+
+        @media (max-width: 768px) {
+        .search-box button {
+            position: relative;
+            top: auto;
+            right: auto;
+        }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="#">
+            <img class="logo-img" src="{% static 'img/logo.png' %}" alt="">
+        </a>
+    </header>
+
+    <main>
+        <div class="search-box">
+            <input type="text" placeholder="Search...">
+        </div>
+
+        <div class="com-list">
+            <div class="company">
+                <!-- <a class="company-card" href="{% url 'analytics' symbol='AAPL' %}">
+                    <div class="card-div01">
+                        <img class="card-logo" src="{% static 'logos/AAPL.svg' %}" alt="">
+                    </div>
+                    <div class="card-div02">
+                        <h3 class="stock-name">Apple Inc</h3>
+                        <h4 class="symbol">Symbol: APPL</h4>
+                        <h4 class="price"> <span>Price: </span>$ 197.57</h4>
+                    </div>
+                    
+                    
+                    <h4>-0.54 (0.27%) ↓ today</h4>
+                </a> -->
+
+                {% for stock in stocks %}
+
+                    <a class="company-card" href="{% url 'analytics' symbol=stock.symbol %}">
+                        <div class="card-div01">
+                            <img class="card-logo" src="{% static 'logos/' %}{{stock.symbol}}.svg" alt="">
+                        </div>
+                        <div class="card-div02">
+                            <h3 class="stock-name">{{stock.name}}</h3>
+                            <h4 class="symbol">Symbol: {{stock.symbol}}</h4>
+                            <h4 class="price"> <span>Price: </span>$ {{stock.last_price}}</h4>
+                        </div>
+                        
+                    </a>
+                {% endfor %}
+                
+                
+                
+    
+            </div>
+        </div>
+
+        
+    </main>
+</body>
+</html>
